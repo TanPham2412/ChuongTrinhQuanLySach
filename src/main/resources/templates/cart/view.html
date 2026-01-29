@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giỏ Hàng</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <h2><i class="fas fa-shopping-cart"></i> Giỏ Hàng Của Bạn</h2>
+    
+    <div th:if="${cart.items.empty}" class="alert alert-info">
+        <i class="fas fa-info-circle"></i> Giỏ hàng trống. 
+        <a href="/books" class="alert-link">Tiếp tục mua sắm</a>
+    </div>
+    
+    <div th:unless="${cart.items.empty}">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Sách</th>
+                        <th>Giá</th>
+                        <th>Số Lượng</th>
+                        <th>Tổng</th>
+                        <th>Thao Tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="item : ${cart.items}">
+                        <td>
+                            <strong th:text="${item.book.title}">Book Title</strong><br>
+                            <small class="text-muted" th:text="${item.book.author}">Author</small>
+                        </td>
+                        <td th:text="${#numbers.formatDecimal(item.book.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">Price</td>
+                        <td>
+                            <form th:action="@{/cart/update/{id}(id=${item.book.id})}" method="post" class="d-inline">
+                                <div class="mb-3 d-inline-block">
+                                    <label for="quantity-${item.book.id}" class="visually-hidden">Số lượng</label>
+                                    <input type="number" name="quantity" th:value="${item.quantity}" 
+                                           th:id="'quantity-' + ${item.book.id}"
+                                           min="0" max="99" class="form-control form-control-sm quantity-input"
+                                           aria-label="Số lượng">
+                                    <button type="submit" class="btn btn-sm btn-primary" aria-label="Cập nhật số lượng">
+                                        <i class="fas fa-sync"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </td>
+                        <td>
+                            <strong th:text="${#numbers.formatDecimal(item.book.price * item.quantity, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">Total</strong>
+                        </td>
+                        <td>
+                            <a th:href="@{/cart/remove/{id}(id=${item.book.id})}" 
+                               class="btn btn-sm btn-danger"
+                               onclick="return confirm('Bạn có chắc muốn xóa sản phẩm này?')">
+                                <i class="fas fa-trash"></i> Xóa
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot class="table-light">
+                    <tr>
+                        <td colspan="3" class="text-end"><strong>Tổng Cộng:</strong></td>
+                        <td colspan="2">
+                            <strong class="text-primary fs-5" 
+                                    th:text="${#numbers.formatDecimal(cart.total, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
+                                Total
+                            </strong>
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        
+        <div class="d-flex justify-content-between mt-4">
+            <a href="/books" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Tiếp Tục Mua Sắm
+            </a>
+            <form th:action="@{/cart/checkout}" method="post">
+                <button type="submit" class="btn btn-success btn-lg">
+                    <i class="fas fa-check"></i> Thanh Toán
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
