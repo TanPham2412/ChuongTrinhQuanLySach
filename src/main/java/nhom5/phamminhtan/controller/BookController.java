@@ -29,6 +29,7 @@ public class BookController {
             model.addAttribute("books", bookService.getAllBooks());
         }
         model.addAttribute("cart", cart);
+        model.addAttribute("noGlobalAlerts", true);
         return "books/list";
     }
     
@@ -104,7 +105,8 @@ public class BookController {
     @PostMapping("/cart/add/{id}")
     public String addToCart(@PathVariable Long id,
                           @RequestParam(defaultValue = "1") int quantity,
-                          RedirectAttributes redirectAttributes) {
+                          RedirectAttributes redirectAttributes,
+                          @RequestHeader(value = "referer", required = false) String referer) {
         Book book = bookService.getBookById(id)
             .orElse(null);
         
@@ -119,7 +121,10 @@ public class BookController {
         }
         
         cart.addItem(book, quantity);
-        redirectAttributes.addFlashAttribute("successMessage", "Đã thêm vào giỏ hàng!");
-        return "redirect:/books";
+        redirectAttributes.addFlashAttribute("successMessage", "Đã thêm \"" + book.getTitle() + "\" vào giỏ hàng!");
+        if (referer != null && referer.contains("#")) {
+            return "redirect:" + referer.substring(referer.indexOf("/books"));
+        }
+        return "redirect:/books#book-" + book.getId();
     }
 }

@@ -1,46 +1,21 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${title} ?: 'Quản Lý Sách'">Quản Lý Sách</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        .content {
-            flex: 1;
-        }
-        .navbar-brand {
-            font-weight: bold;
-        }
-        .cart-badge {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #dc3545;
-            color: white;
-            border-radius: 50%;
-            padding: 2px 6px;
-            font-size: 12px;
-        }
-        footer {
-            background-color: #f8f9fa;
-            padding: 20px 0;
-            margin-top: 40px;
-        }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/bookstore.css}">
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
+<body class="bookstore-body">
+    <nav class="navbar navbar-expand-lg navbar-light py-3 shadow-sm">
+        <div class="container position-relative">
             <a class="navbar-brand" href="/books">
-                <i class="fas fa-book"></i> Nhà Sách Online
+                <span class="hero-badge"><i class="fas fa-book"></i> Nhà Sách Online</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -59,9 +34,9 @@
                         </a>
                     </li>
                 </ul>
-                <ul class="navbar-nav">
-                    <li class="nav-item position-relative me-3">
-                        <a class="nav-link" href="/cart">
+                <ul class="navbar-nav align-items-lg-center">
+                    <li class="nav-item me-lg-3">
+                        <a class="nav-link position-relative" href="/cart">
                             <i class="fas fa-shopping-cart"></i> Giỏ Hàng
                             <span class="cart-badge" th:if="${cart != null and cart.totalItems > 0}" 
                                   th:text="${cart.totalItems}">0</span>
@@ -101,11 +76,11 @@
     <div class="content">
         <div class="container mt-4">
             <!-- Alert Messages -->
-            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <div th:if="${successMessage} and !(${noGlobalAlerts} ?: false)" class="alert alert-success alert-dismissible fade show" role="alert">
                 <i class="fas fa-check-circle"></i> <span th:text="${successMessage}"></span>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
-            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <div th:if="${errorMessage} and !(${noGlobalAlerts} ?: false)" class="alert alert-danger alert-dismissible fade show" role="alert">
                 <i class="fas fa-exclamation-circle"></i> <span th:text="${errorMessage}"></span>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
