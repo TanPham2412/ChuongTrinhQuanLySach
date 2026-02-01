@@ -48,6 +48,11 @@
                                   th:text="${cart.totalItems}">0</span>
                         </a>
                     </li>
+                    <li class="nav-item me-lg-3" sec:authorize="isAuthenticated()">
+                        <a class="nav-link" href="/orders">
+                            <i class="fas fa-box"></i> Đơn Hàng
+                        </a>
+                    </li>
                     <li class="nav-item" sec:authorize="!isAuthenticated()">
                         <a class="nav-link" href="/login">
                             <i class="fas fa-sign-in-alt"></i> Đăng Nhập

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Đơn hàng của tôi</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container mt-4">
+        <h2 class="mb-4">
+            <i class="bi bi-box-seam"></i> Đơn hàng của tôi
+        </h2>
+
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill"></i> <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i> <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div th:if="${#lists.isEmpty(orders)}" class="alert alert-info">
+            <i class="bi bi-info-circle"></i> Bạn chưa có đơn hàng nào. 
+            <a th:href="@{/books}" class="alert-link">Mua sắm ngay!</a>
+        </div>
+
+        <div th:if="${!#lists.isEmpty(orders)}" class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Mã đơn</th>
+                        <th>Ngày đặt</th>
+                        <th>Tổng tiền</th>
+                        <th>Phương thức</th>
+                        <th>Trạng thái đơn</th>
+                        <th>Trạng thái thanh toán</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="order : ${orders}">
+                        <td><strong th:text="'#' + ${order.id}"></strong></td>
+                        <td th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td>
+                            <strong th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT') + ' ₫'}"></strong>
+                        </td>
+                        <td>
+                            <span th:if="${order.paymentMethod.name() == 'BANK_TRANSFER'}" class="badge bg-info">
+                                <i class="bi bi-bank"></i> Chuyển khoản
+                            </span>
+                            <span th:if="${order.paymentMethod.name() == 'COD'}" class="badge bg-warning text-dark">
+                                <i class="bi bi-cash"></i> COD
+                            </span>
+                        </td>
+                        <td>
+                            <span th:if="${order.status.name() == 'PENDING'}" class="badge bg-secondary">
+                                <i class="bi bi-clock"></i> Chờ xác nhận
+                            </span>
+                            <span th:if="${order.status.name() == 'CONFIRMED'}" class="badge bg-primary">
+                                <i class="bi bi-check-circle"></i> Đã xác nhận
+                            </span>
+                            <span th:if="${order.status.name() == 'PREPARING'}" class="badge bg-info">
+                                <i class="bi bi-box"></i> Đang chuẩn bị
+                            </span>
+                            <span th:if="${order.status.name() == 'SHIPPING'}" class="badge bg-warning text-dark">
+                                <i class="bi bi-truck"></i> Đang giao
+                            </span>
+                            <span th:if="${order.status.name() == 'COMPLETED'}" class="badge bg-success">
+                                <i class="bi bi-check-all"></i> Hoàn thành
+                            </span>
+                            <span th:if="${order.status.name() == 'CANCELLED'}" class="badge bg-danger">
+                                <i class="bi bi-x-circle"></i> Đã hủy
+                            </span>
+                        </td>
+                        <td>
+                            <span th:if="${order.paymentStatus.name() == 'UNPAID'}" class="badge bg-danger">
+                                <i class="bi bi-x-circle"></i> Chưa thanh toán
+                            </span>
+                            <span th:if="${order.paymentStatus.name() == 'PAID'}" class="badge bg-success">
+                                <i class="bi bi-check-circle"></i> Đã thanh toán
+                            </span>
+                            <span th:if="${order.paymentStatus.name() == 'REFUNDED'}" class="badge bg-info">
+                                <i class="bi bi-arrow-counterclockwise"></i> Đã hoàn tiền
+                            </span>
+                        </td>
+                        <td>
+                            <a th:href="@{/orders/{id}(id=${order.id})}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i> Chi tiết
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

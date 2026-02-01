@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Chi tiết đơn hàng</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>
+                <i class="bi bi-box-seam"></i> Chi tiết đơn hàng #<span th:text="${order.id}"></span>
+            </h2>
+            <a th:href="@{/orders}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Quay lại
+            </a>
+        </div>
+
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill"></i> <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i> <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div class="row">
+            <!-- Thông tin đơn hàng -->
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="bi bi-info-circle"></i> Thông tin đơn hàng</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>Mã đơn hàng:</strong> #<span th:text="${order.id}"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Ngày đặt:</strong> 
+                                <span th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></span>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>Trạng thái đơn hàng:</strong><br/>
+                                <span th:if="${order.status.name() == 'PENDING'}" class="badge bg-secondary">
+                                    <i class="bi bi-clock"></i> Chờ xác nhận
+                                </span>
+                                <span th:if="${order.status.name() == 'CONFIRMED'}" class="badge bg-primary">
+                                    <i class="bi bi-check-circle"></i> Đã xác nhận
+                                </span>
+                                <span th:if="${order.status.name() == 'PREPARING'}" class="badge bg-info">
+                                    <i class="bi bi-box"></i> Đang chuẩn bị
+                                </span>
+                                <span th:if="${order.status.name() == 'SHIPPING'}" class="badge bg-warning text-dark">
+                                    <i class="bi bi-truck"></i> Đang giao hàng
+                                </span>
+                                <span th:if="${order.status.name() == 'COMPLETED'}" class="badge bg-success">
+                                    <i class="bi bi-check-all"></i> Hoàn thành
+                                </span>
+                                <span th:if="${order.status.name() == 'CANCELLED'}" class="badge bg-danger">
+                                    <i class="bi bi-x-circle"></i> Đã hủy
+                                </span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Phương thức thanh toán:</strong><br/>
+                                <span th:if="${order.paymentMethod.name() == 'BANK_TRANSFER'}" class="badge bg-info">
+                                    <i class="bi bi-bank"></i> Chuyển khoản ngân hàng
+                                </span>
+                                <span th:if="${order.paymentMethod.name() == 'COD'}" class="badge bg-warning text-dark">
+                                    <i class="bi bi-cash"></i> Thanh toán khi nhận hàng
+                                </span>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <strong>Trạng thái thanh toán:</strong><br/>
+                                <span th:if="${order.paymentStatus.name() == 'UNPAID'}" class="badge bg-danger">
+                                    <i class="bi bi-x-circle"></i> Chưa thanh toán
+                                </span>
+                                <span th:if="${order.paymentStatus.name() == 'PAID'}" class="badge bg-success">
+                                    <i class="bi bi-check-circle"></i> Đã thanh toán
+                                </span>
+                                <span th:if="${order.paymentStatus.name() == 'REFUNDED'}" class="badge bg-info">
+                                    <i class="bi bi-arrow-counterclockwise"></i> Đã hoàn tiền
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sản phẩm -->
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="bi bi-cart"></i> Sản phẩm đã đặt</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Sản phẩm</th>
+                                        <th class="text-center">Số lượng</th>
+                                        <th class="text-end">Đơn giá</th>
+                                        <th class="text-end">Thành tiền</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="item : ${order.orderItems}">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img th:src="${item.book.imageUrl}" 
+                                                     th:alt="${item.book.title}"
+                                                     style="width: 50px; height: 50px; object-fit: cover;"
+                                                     class="me-2 rounded">
+                                                <div>
+                                                    <a th:href="@{/books/{id}(id=${item.book.id})}" 
+                                                       th:text="${item.book.title}"
+                                                       class="text-decoration-none"></a>
+                                                    <br/>
+                                                    <small class="text-muted" th:text="${item.book.author}"></small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <span th:text="${item.quantity}"></span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT') + ' ₫'}"></span>
+                                        </td>
+                                        <td class="text-end">
+                                            <strong th:text="${#numbers.formatDecimal(item.price * item.quantity, 0, 'COMMA', 0, 'POINT') + ' ₫'}"></strong>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="3" class="text-end"><strong>Tổng cộng:</strong></td>
+                                        <td class="text-end">
+                                            <h5 class="mb-0 text-primary">
+                                                <strong th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT') + ' ₫'}"></strong>
+                                            </h5>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thông tin giao hàng -->
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="bi bi-geo-alt"></i> Thông tin giao hàng</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <strong>Người nhận:</strong><br/>
+                            <span th:text="${order.user.fullName}"></span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Số điện thoại:</strong><br/>
+                            <span th:text="${order.phoneNumber}"></span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Địa chỉ:</strong><br/>
+                            <span th:text="${order.shippingAddress}"></span>
+                        </div>
+                        <div th:if="${order.note != null and !order.note.isEmpty()}">
+                            <strong>Ghi chú:</strong><br/>
+                            <span th:text="${order.note}" class="text-muted"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hướng dẫn thanh toán (nếu chưa thanh toán) -->
+                <div th:if="${order.paymentStatus.name() == 'UNPAID' and order.status.name() != 'CANCELLED'}" 
+                     class="card border-warning">
+                    <div class="card-header bg-warning">
+                        <h6 class="mb-0"><i class="bi bi-info-circle"></i> Lưu ý thanh toán</h6>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${order.paymentMethod.name() == 'BANK_TRANSFER'}">
+                            <p class="mb-1">Vui lòng chuyển khoản đến:</p>
+                            <p class="mb-0"><strong>Ngân hàng:</strong> Vietcombank</p>
+                            <p class="mb-0"><strong>STK:</strong> 1234567890</p>
+                            <p class="mb-0"><strong>Chủ TK:</strong> Nhà Sách ABC</p>
+                            <p class="mb-0"><strong>Nội dung:</strong> DH<span th:text="${order.id}"></span></p>
+                            <small class="text-muted">Đơn hàng sẽ được xác nhận sau khi chuyển khoản thành công</small>
+                        </div>
+                        <div th:if="${order.paymentMethod.name() == 'COD'}">
+                            <p class="mb-0">Vui lòng chuẩn bị tiền mặt khi nhận hàng.</p>
+                            <small class="text-muted">Bạn sẽ thanh toán khi nhận được hàng</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

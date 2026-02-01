@@ -18,6 +18,7 @@ import nhom5.phamminhtan.repository.OrderRepository;
 public class OrderService {
     
     private final OrderRepository orderRepository;
+    private final EmailService emailService;
     
     public long getTotalOrders() {
         return orderRepository.count();
@@ -51,19 +52,56 @@ public class OrderService {
     
     @Transactional
     public Order updateOrderStatus(Long orderId, String statusStr) {
-        Order order = orderRepository.findById(orderId)
+        Order order = orderRepository.findByIdWithDetails(orderId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
         Order.OrderStatus status = Order.OrderStatus.valueOf(statusStr);
         order.setStatus(status);
-        return orderRepository.save(order);
+        
+        // Tự động cập nhật trạng thái thanh toán
+        updatePaymentStatusBasedOnOrderStatus(order, status);
+        
+        Order savedOrder = orderRepository.save(order);
+        
+        // Gửi email thông báo
+        emailService.sendOrderStatusUpdateEmail(savedOrder);
+        
+        return savedOrder;
     }
     
     @Transactional
     public Order updateOrderStatus(Long orderId, Order.OrderStatus status) {
-        Order order = orderRepository.findById(orderId)
+        Order order = orderRepository.findByIdWithDetails(orderId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
         order.setStatus(status);
-        return orderRepository.save(order);
+        
+        // Tự động cập nhật trạng thái thanh toán
+        updatePaymentStatusBasedOnOrderStatus(order, status);
+        
+        Order savedOrder = orderRepository.save(order);
+        
+        // Gửi email thông báo
+        emailService.sendOrderStatusUpdateEmail(savedOrder);
+        
+        return savedOrder;
+    }
+    
+    /**
+     * Tự động cập nhật trạng thái thanh toán dựa trên phương thức thanh toán và trạng thái đơn hàng
+     * - Chuyển khoản: Khi đơn hàng được xác nhận (CONFIRMED) -> Đã thanh toán (PAID)
+     * - COD: Khi đơn hàng hoàn thành (COMPLETED) -> Đã thanh toán (PAID)
+     */
+    private void updatePaymentStatusBasedOnOrderStatus(Order order, Order.OrderStatus newStatus) {
+        if (order.getPaymentMethod() == Order.PaymentMethod.BANK_TRANSFER 
+                && newStatus == Order.OrderStatus.CONFIRMED
+                && order.getPaymentStatus() != Order.PaymentStatus.PAID) {
+            // Chuyển khoản: xác nhận đơn = đã thanh toán
+            order.setPaymentStatus(Order.PaymentStatus.PAID);
+        } else if (order.getPaymentMethod() == Order.PaymentMethod.COD 
+                && newStatus == Order.OrderStatus.COMPLETED
+                && order.getPaymentStatus() != Order.PaymentStatus.PAID) {
+            // COD: hoàn thành đơn = đã thanh toán
+            order.setPaymentStatus(Order.PaymentStatus.PAID);
+        }
     }
     
     @Transactional
