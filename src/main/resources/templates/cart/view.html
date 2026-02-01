@@ -9,81 +9,110 @@
 </head>
 <body>
 <div layout:fragment="content">
-    <h2><i class="fas fa-shopping-cart"></i> Giỏ Hàng Của Bạn</h2>
-    
-    <div th:if="${cart.items.empty}" class="alert alert-info">
-        <i class="fas fa-info-circle"></i> Giỏ hàng trống. 
-        <a href="/books" class="alert-link">Tiếp tục mua sắm</a>
-    </div>
-    
-    <div th:unless="${cart.items.empty}">
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead class="table-light">
-                    <tr>
-                        <th>Sách</th>
-                        <th>Giá</th>
-                        <th>Số Lượng</th>
-                        <th>Tổng</th>
-                        <th>Thao Tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="item : ${cart.items}">
-                        <td>
-                            <strong th:text="${item.book.title}">Book Title</strong><br>
-                            <small class="text-muted" th:text="${item.book.author}">Author</small>
-                        </td>
-                        <td th:text="${#numbers.formatDecimal(item.book.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">Price</td>
-                        <td>
-                            <form th:action="@{/cart/update/{id}(id=${item.book.id})}" method="post" class="d-inline">
-                                <div class="mb-3 d-inline-block">
-                                    <label for="quantity-${item.book.id}" class="visually-hidden">Số lượng</label>
-                                    <input type="number" name="quantity" th:value="${item.quantity}" 
-                                           th:id="'quantity-' + ${item.book.id}"
-                                           min="0" max="99" class="form-control form-control-sm quantity-input"
-                                           aria-label="Số lượng">
-                                    <button type="submit" class="btn btn-sm btn-primary" aria-label="Cập nhật số lượng">
-                                        <i class="fas fa-sync"></i>
-                                    </button>
-                                </div>
-                            </form>
-                        </td>
-                        <td>
-                            <strong th:text="${#numbers.formatDecimal(item.book.price * item.quantity, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">Total</strong>
-                        </td>
-                        <td>
-                            <a th:href="@{/cart/remove/{id}(id=${item.book.id})}" 
-                               class="btn btn-sm btn-danger"
-                               onclick="return confirm('Bạn có chắc muốn xóa sản phẩm này?')">
-                                <i class="fas fa-trash"></i> Xóa
-                            </a>
-                        </td>
-                    </tr>
-                </tbody>
-                <tfoot class="table-light">
-                    <tr>
-                        <td colspan="3" class="text-end"><strong>Tổng Cộng:</strong></td>
-                        <td colspan="2">
-                            <strong class="text-primary fs-5" 
-                                    th:text="${#numbers.formatDecimal(cart.total, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
-                                Total
-                            </strong>
-                        </td>
-                    </tr>
-                </tfoot>
-            </table>
+    <div class="glass-card animate-in">
+        <h2 class="text-gradient mb-4">
+            <i class="fas fa-shopping-cart"></i> Giỏ Hàng Của Bạn
+        </h2>
+        
+        <div th:if="${cart.items.empty}" class="alert alert-info">
+            <div class="text-center py-5">
+                <i class="fas fa-shopping-basket fa-4x mb-3 text-muted"></i>
+                <h4>Giỏ hàng trống</h4>
+                <p class="text-muted">Hãy thêm sản phẩm vào giỏ hàng để tiếp tục mua sắm!</p>
+                <a href="/books" class="btn btn-primary mt-3">
+                    <i class="fas fa-arrow-left"></i> Tiếp tục mua sắm
+                </a>
+            </div>
         </div>
         
-        <div class="d-flex justify-content-between mt-4">
-            <a href="/books" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Tiếp Tục Mua Sắm
-            </a>
-            <form th:action="@{/cart/checkout}" method="post">
-                <button type="submit" class="btn btn-success btn-lg">
-                    <i class="fas fa-check"></i> Thanh Toán
-                </button>
-            </form>
+        <div th:unless="${cart.items.empty}">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-book"></i> Sách</th>
+                            <th><i class="fas fa-dollar-sign"></i> Giá</th>
+                            <th><i class="fas fa-sort-numeric-up"></i> Số Lượng</th>
+                            <th><i class="fas fa-calculator"></i> Tổng</th>
+                            <th><i class="fas fa-cog"></i> Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="item : ${cart.items}">
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <img th:if="${not #strings.isEmpty(item.book.imageUrl)}"
+                                         th:src="${item.book.imageUrl}" 
+                                         alt="Book"
+                                         style="width: 60px; height: 80px; object-fit: cover; border-radius: 10px;">
+                                    <div>
+                                        <strong th:text="${item.book.title}">Book Title</strong><br>
+                                        <small class="text-muted">
+                                            <i class="fas fa-user"></i> <span th:text="${item.book.author}">Author</span>
+                                        </small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <strong class="text-gradient" th:text="${#numbers.formatDecimal(item.book.price, 0, 'COMMA', 0, 'POINT')} + 'đ'">Price</strong>
+                            </td>
+                            <td>
+                                <form th:action="@{/cart/update/{id}(id=${item.book.id})}" method="post" class="d-inline">
+                                    <div class="d-flex align-items-center gap-2">
+                                         <input type="number" 
+                                            name="quantity" 
+                                            id="quantity-${item.book.id}"
+                                            th:value="${item.quantity}" 
+                                            min="0" 
+                                            max="99" 
+                                            class="form-control form-control-sm quantity-input cart-quantity-input"
+                                            title="Nhập số lượng sách muốn mua"
+                                            required>
+                                        <button type="submit" 
+                                                class="btn btn-sm btn-primary"
+                                                aria-label="Cập nhật số lượng">
+                                            <i class="fas fa-sync"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </td>
+                            <td>
+                                <strong class="fs-5" style="color: var(--primary-color);" 
+                                        th:text="${#numbers.formatDecimal(item.book.price * item.quantity, 0, 'COMMA', 0, 'POINT')} + 'đ'">Total</strong>
+                            </td>
+                            <td>
+                                <a th:href="@{/cart/remove/{id}(id=${item.book.id})}" 
+                                   class="btn btn-sm btn-danger"
+                                   onclick="return confirm('Bạn có chắc muốn xóa sản phẩm này?')">
+                                    <i class="fas fa-trash"></i> Xóa
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-end"><strong class="fs-4">Tổng Cộng:</strong></td>
+                            <td colspan="2">
+                                <div style="background: var(--primary-gradient); padding: 15px 20px; border-radius: 15px; display: inline-block;">
+                                    <strong class="text-white fs-3" 
+                                            th:text="${#numbers.formatDecimal(cart.total, 0, 'COMMA', 0, 'POINT')} + 'đ'">
+                                        Total
+                                    </strong>
+                                </div>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            
+            <div class="d-flex justify-content-between mt-4">
+                <a href="/books" class="btn btn-secondary btn-lg">
+                    <i class="fas fa-arrow-left"></i> Tiếp Tục Mua Sắm
+                </a>
+                <a href="/cart/checkout" class="btn btn-success btn-lg">
+                    <i class="fas fa-check"></i> Thanh Toán Ngay
+                </a>
+            </div>
         </div>
     </div>
 </div>

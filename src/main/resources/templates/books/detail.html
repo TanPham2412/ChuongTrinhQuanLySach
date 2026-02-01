@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${book.title + ' - Chi Tiết Sách'}">Chi Tiết Sách</title>
+    <link rel="stylesheet" th:href="@{/css/detail.css}">
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="page-wrapper">
+        <div class="container">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/"><i class="fas fa-home"></i> Trang Chủ</a></li>
+                    <li class="breadcrumb-item"><a href="/books"><i class="fas fa-book"></i> Danh Sách Sách</a></li>
+                    <li class="breadcrumb-item active" aria-current="page" th:text="${book.title}">Chi Tiết Sách</li>
+                </ol>
+            </nav>
+
+            <!-- Book Detail -->
+            <div class="detail-container">
+                <div class="row">
+                    <!-- Image Section -->
+                    <div class="col-lg-5 mb-4">
+                        <div class="image-section">
+                            <img th:if="${not #strings.isEmpty(book.imageUrl)}"
+                                th:src="${book.imageUrl}" 
+                                th:alt="${book.title}"
+                                th:title="${book.title + ' - ' + book.author}"
+                                class="book-image">
+                            <div th:unless="${not #strings.isEmpty(book.imageUrl)}" 
+                                 class="no-image">
+                                <i class="fas fa-book fa-8x text-white"></i>
+                            </div>
+                            <span th:if="${book.quantity > 0}" class="stock-badge badge bg-success">
+                                <i class="fas fa-check-circle"></i> Còn <span th:text="${book.quantity}"></span> cuốn
+                            </span>
+                            <span th:unless="${book.quantity > 0}" class="stock-badge badge bg-danger">
+                                <i class="fas fa-times-circle"></i> Hết hàng
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Info Section -->
+                    <div class="col-lg-7">
+                        <h1 class="book-title" th:text="${book.title}">Book Title</h1>
+                        
+                        <div class="info-grid">
+                            <div class="info-item author">
+                                <div class="info-icon author-icon">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="info-content">
+                                    <div class="info-label">Tác giả</div>
+                                    <div class="info-value" th:text="${book.author}">Author Name</div>
+                                </div>
+                            </div>
+                            
+                            <div class="info-item category">
+                                <div class="info-icon category-icon">
+                                    <i class="fas fa-tag"></i>
+                                </div>
+                                <div class="info-content">
+                                    <div class="info-label">Thể loại</div>
+                                    <div class="info-value" 
+                                         th:text="${book.category != null ? book.category.getFullPath() : 'Chưa phân loại'}">
+                                        Category
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="info-item price-item">
+                                <div class="info-icon price-icon">
+                                    <i class="fas fa-dollar-sign"></i>
+                                </div>
+                                <div class="info-content">
+                                    <div class="info-label">Giá bán</div>
+                                    <div class="price-value">
+                                        <span th:text="${#numbers.formatDecimal(book.price, 0, 'COMMA', 0, 'POINT')}">Price</span>đ
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div th:if="${book.description != null and !book.description.isEmpty()}" class="description-section">
+                            <div class="description-title">
+                                <i class="fas fa-align-left"></i>
+                                <span>Mô tả sản phẩm</span>
+                            </div>
+                            <div class="description-text" th:text="${book.description}">Description</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Section -->
+            <div class="row" th:if="${book.quantity > 0}">
+                <div class="col-lg-8 mx-auto">
+                    <form th:action="@{/books/cart/add/{id}(id=${book.id})}" method="post" class="order-card">
+                        <div class="order-header">
+                            <div class="order-title">
+                                <i class="fas fa-shopping-cart"></i> Đặt Hàng Ngay
+                            </div>
+                            <div class="order-subtitle">Chọn số lượng và xác nhận đơn hàng của bạn</div>
+                        </div>
+                        
+                        <!-- Quantity Control -->
+                        <div class="quantity-section">
+                            <div class="quantity-label">Chọn số lượng mua</div>
+                            <div class="quantity-control">
+                                <button type="button" 
+                                        class="quantity-btn" 
+                                        id="decreaseBtn"
+                                        aria-label="Giảm số lượng">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <input type="number" 
+                                    name="quantity" 
+                                    id="quantityInput" 
+                                    class="form-control quantity-input" 
+                                    value="1" 
+                                    min="1" 
+                                    th:max="${book.quantity}"
+                                    title="Nhập số lượng sách muốn mua"
+                                    required>
+                                <button type="button" 
+                                        class="quantity-btn" 
+                                        id="increaseBtn"
+                                        aria-label="Tăng số lượng">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            <div class="quantity-hint">Số lượng tối đa: <strong th:text="${book.quantity}"></strong> cuốn</div>
+                        </div>
+
+                        <!-- Total -->
+                        <div class="total-section">
+                            <div class="total-label">Tổng tiền tạm tính</div>
+                            <div class="total-price" id="totalPrice">
+                                <span th:text="${#numbers.formatDecimal(book.price, 0, 'COMMA', 0, 'POINT')}">Price</span>đ
+                            </div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <button type="submit" class="btn btn-confirm">
+                            <i class="fas fa-cart-plus"></i> Thêm vào giỏ hàng
+                        </button>
+                        <a href="/books" class="btn btn-continue">
+                            <i class="fas fa-arrow-left"></i> Tiếp Tục Mua Sắm
+                        </a>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Out of Stock -->
+            <div class="row" th:unless="${book.quantity > 0}">
+                <div class="col-lg-8 mx-auto">
+                    <div class="out-of-stock">
+                        <div class="out-of-stock-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="out-of-stock-title">Sản Phẩm Tạm Hết Hàng</div>
+                        <div class="out-of-stock-text">Rất tiếc, sách này hiện đang hết hàng. Vui lòng quay lại sau hoặc chọn sản phẩm khác!</div>
+                        <a href="/books" class="btn btn-light btn-lg px-5">
+                            <i class="fas fa-arrow-left"></i> Quay Lại Danh Sách Sách
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features -->
+            <div class="features-section">
+                <h2 class="features-title">Cam Kết Của Chúng Tôi</h2>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <div class="feature-icon-wrapper shipping">
+                                <i class="fas fa-shipping-fast"></i>
+                            </div>
+                            <div class="feature-title">Giao Hàng Nhanh Chóng</div>
+                            <div class="feature-description">
+                                Miễn phí vận chuyển cho đơn hàng từ 200.000đ. Giao hàng toàn quốc trong 2-3 ngày làm việc.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <div class="feature-icon-wrapper security">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="feature-title">Thanh Toán An Toàn</div>
+                            <div class="feature-description">
+                                Bảo mật thông tin 100% với công nghệ mã hóa SSL tiên tiến nhất. An toàn tuyệt đối.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <div class="feature-icon-wrapper return">
+                                <i class="fas fa-undo"></i>
+                            </div>
+                            <div class="feature-title">Đổi Trả Dễ Dàng</div>
+                            <div class="feature-description">
+                                Đổi trả miễn phí trong vòng 7 ngày nếu sản phẩm có lỗi từ nhà sản xuất.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const bookPrice = /*[[${book.price}]]*/ 0;
+        const maxQuantity = /*[[${book.quantity}]]*/ 1;
+        
+        const quantityInput = document.getElementById('quantityInput');
+        const totalPriceElement = document.getElementById('totalPrice');
+        const decreaseBtn = document.getElementById('decreaseBtn');
+        const increaseBtn = document.getElementById('increaseBtn');
+        
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+        
+        function updateTotal() {
+            const quantity = parseInt(quantityInput.value) || 1;
+            const total = bookPrice * quantity;
+            totalPriceElement.textContent = formatNumber(total) + 'đ';
+            
+            decreaseBtn.disabled = quantity <= 1;
+            increaseBtn.disabled = quantity >= maxQuantity;
+        }
+        
+        quantityInput.addEventListener('input', function() {
+            let value = parseInt(this.value) || 1;
+            if (value < 1) value = 1;
+            if (value > maxQuantity) value = maxQuantity;
+            this.value = value;
+            updateTotal();
+        });
+        
+        decreaseBtn.addEventListener('click', function() {
+            let value = parseInt(quantityInput.value) || 1;
+            if (value > 1) {
+                quantityInput.value = value - 1;
+                updateTotal();
+            }
+        });
+        
+        increaseBtn.addEventListener('click', function() {
+            let value = parseInt(quantityInput.value) || 1;
+            if (value < maxQuantity) {
+                quantityInput.value = value + 1;
+                updateTotal();
+            }
+        });
+        
+        updateTotal();
+        /*]]>*/
+    </script>
+</div>
+</body>
+</html>

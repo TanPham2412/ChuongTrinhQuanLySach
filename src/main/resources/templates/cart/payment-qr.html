@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chuyển Khoản</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="glass-card p-5 text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-qrcode fa-4x text-primary"></i>
+                    </div>
+                    
+                    <h2 class="text-gradient fw-bold mb-2">Quét Mã QR Để Thanh Toán</h2>
+                    <p class="text-muted mb-4">Sử dụng ứng dụng ngân hàng để quét mã QR bên dưới</p>
+                    
+                    <!-- QR Code -->
+                    <div class="qr-container mb-4">
+                        <img th:src="@{https://img.vietqr.io/image/{bankId}-{accountNo}-compact2.jpg(bankId=${bankInfo.bankId},accountNo=${bankInfo.accountNumber},amount=${order.totalAmount},addInfo='DH' + ${order.id})}" 
+                             alt="QR Code" 
+                             class="qr-code">
+                    </div>
+                    
+                    <!-- Thông tin chuyển khoản -->
+                    <div class="bank-info-box p-4 mb-4">
+                        <h5 class="fw-bold mb-3">Thông Tin Chuyển Khoản</h5>
+                        
+                        <div class="info-row">
+                            <span class="label">Ngân Hàng:</span>
+                            <span class="value fw-bold" th:text="${bankInfo.bankName}">MB Bank</span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <span class="label">Số Tài Khoản:</span>
+                            <span class="value fw-bold" th:text="${bankInfo.accountNumber}">7053765633</span>
+                            <button class="btn btn-sm btn-outline-primary ms-2" 
+                                    onclick="copyToClipboard('[[${bankInfo.accountNumber}]]')">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
+                        
+                        <div class="info-row">
+                            <span class="label">Chủ Tài Khoản:</span>
+                            <span class="value fw-bold" th:text="${bankInfo.accountName}">Pham Minh Tan</span>
+                        </div>
+                        
+                        <div class="info-row highlight">
+                            <span class="label">Số Tiền:</span>
+                            <span class="value fw-bold text-primary fs-4">
+                                <span th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')}">0</span>đ
+                            </span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <span class="label">Nội Dung:</span>
+                            <span class="value fw-bold" th:text="'DH' + ${order.id}">DH123</span>
+                            <button class="btn btn-sm btn-outline-primary ms-2" 
+                                    onclick="copyToClipboard('DH[[${order.id}]]')">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Hướng dẫn -->
+                    <div class="alert alert-info text-start">
+                        <h6 class="fw-bold mb-2">
+                            <i class="fas fa-info-circle"></i> Hướng Dẫn Thanh Toán:
+                        </h6>
+                        <ol class="mb-0">
+                            <li>Mở ứng dụng ngân hàng trên điện thoại</li>
+                            <li>Chọn chức năng quét mã QR</li>
+                            <li>Quét mã QR ở trên hoặc nhập thông tin thủ công</li>
+                            <li>Kiểm tra thông tin và xác nhận chuyển khoản</li>
+                            <li>Đơn hàng sẽ được xác nhận sau khi nhận được thanh toán</li>
+                        </ol>
+                    </div>
+                    
+                    <!-- Nút quay lại -->
+                    <div class="d-grid gap-2 mt-4">
+                        <a href="/books" class="btn btn-primary btn-lg">
+                            <i class="fas fa-check-circle"></i> Đã Chuyển Khoản - Về Trang Chủ
+                        </a>
+                        <a href="/cart" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Quay Lại Giỏ Hàng
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <style>
+        .qr-container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .qr-code {
+            max-width: 300px;
+            width: 100%;
+            height: auto;
+        }
+        
+        .bank-info-box {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            border: 2px solid #dee2e6;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .info-row.highlight {
+            background: rgba(13, 110, 253, 0.1);
+            margin: 10px -20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            border: none;
+        }
+        
+        .info-row .label {
+            color: #6c757d;
+            font-size: 14px;
+        }
+        
+        .info-row .value {
+            color: #212529;
+        }
+    </style>
+    
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                // Show success message
+                const btn = event.target.closest('button');
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Đã Copy';
+                btn.classList.remove('btn-outline-primary');
+                btn.classList.add('btn-success');
+                
+                setTimeout(function() {
+                    btn.innerHTML = originalHTML;
+                    btn.classList.remove('btn-success');
+                    btn.classList.add('btn-outline-primary');
+                }, 2000);
+            });
+        }
+    </script>
+</div>
+</body>
+</html>

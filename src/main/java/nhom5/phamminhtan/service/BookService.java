@@ -2,10 +2,12 @@ package nhom5.phamminhtan.service;
 
 import lombok.RequiredArgsConstructor;
 import nhom5.phamminhtan.model.Book;
+import nhom5.phamminhtan.model.Category;
 import nhom5.phamminhtan.repository.BookRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,6 +16,7 @@ import java.util.Optional;
 public class BookService {
     
     private final BookRepository bookRepository;
+    private final CategoryService categoryService;
     
     public List<Book> getAllBooks() {
         return bookRepository.findAll();
@@ -59,8 +62,25 @@ public class BookService {
         return bookRepository.searchBooks(keyword.trim());
     }
     
-    public List<Book> getBooksByCategory(String category) {
-        return bookRepository.findByCategory(category);
+    public List<Book> getBooksByCategory(Long categoryId) {
+        Category category = categoryService.getCategoryById(categoryId).orElse(null);
+        if (category == null) {
+            return new ArrayList<>();
+        }
+        
+        List<Book> books = new ArrayList<>();
+        
+        // If it's a parent category, get books from all children
+        if (category.isParent() && !category.getChildren().isEmpty()) {
+            for (Category child : category.getChildren()) {
+                books.addAll(bookRepository.findByCategoryId(child.getId()));
+            }
+        } else {
+            // If it's a child category, get books only from this category
+            books = bookRepository.findByCategoryId(categoryId);
+        }
+        
+        return books;
     }
     
     public List<Book> getBooksByAuthor(String author) {

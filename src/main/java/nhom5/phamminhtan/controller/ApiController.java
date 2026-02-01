@@ -5,6 +5,7 @@ import nhom5.phamminhtan.dto.BookDTO;
 import nhom5.phamminhtan.dto.ApiResponse;
 import nhom5.phamminhtan.model.Book;
 import nhom5.phamminhtan.service.BookService;
+import nhom5.phamminhtan.service.CategoryService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 public class ApiController {
     
     private final BookService bookService;
+    private final CategoryService categoryService;
     
     @GetMapping
     public ResponseEntity<ApiResponse<List<BookDTO>>> getAllBooks() {
@@ -84,7 +86,7 @@ public class ApiController {
         dto.setTitle(book.getTitle());
         dto.setAuthor(book.getAuthor());
         dto.setPrice(book.getPrice());
-        dto.setCategory(book.getCategory());
+        dto.setCategory(book.getCategory() != null ? book.getCategory().getFullPath() : null);
         dto.setDescription(book.getDescription());
         dto.setQuantity(book.getQuantity());
         dto.setImageUrl(book.getImageUrl());
@@ -97,7 +99,7 @@ public class ApiController {
         book.setTitle(dto.getTitle());
         book.setAuthor(dto.getAuthor());
         book.setPrice(dto.getPrice());
-        book.setCategory(dto.getCategory());
+        book.setCategory(dto.getCategory() != null ? categoryService.getCategoryByName(dto.getCategory()) : null);
         book.setDescription(dto.getDescription());
         book.setQuantity(dto.getQuantity());
         book.setImageUrl(dto.getImageUrl());

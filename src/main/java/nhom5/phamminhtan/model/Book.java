@@ -34,9 +34,9 @@ public class Book {
     @Column(nullable = false)
     private BigDecimal price;
     
-    @NotBlank(message = "Thể loại không được để trống")
-    @Column(nullable = false)
-    private String category;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "category_id")
+    private Category category;
     
     @Column(length = 1000)
     private String description;

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thanh Toán</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container my-5">
+        <h2 class="text-gradient mb-4">
+            <i class="fas fa-credit-card"></i> Thanh Toán Đơn Hàng
+        </h2>
+        
+        <div class="row">
+            <!-- Thông tin đơn hàng -->
+            <div class="col-lg-5">
+                <div class="glass-card p-4 mb-4">
+                    <h4 class="fw-bold mb-3">Đơn Hàng Của Bạn</h4>
+                    
+                    <div class="mb-3" th:each="item : ${cart.items}">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <strong th:text="${item.book.title}">Book</strong>
+                                <span class="text-muted"> x <span th:text="${item.quantity}">1</span></span>
+                            </div>
+                            <div class="fw-bold">
+                                <span th:text="${#numbers.formatDecimal(item.totalPrice, 0, 'COMMA', 0, 'POINT')}">0</span>đ
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr/>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Tổng Cộng:</h5>
+                        <h4 class="mb-0 text-primary fw-bold">
+                            <span th:text="${#numbers.formatDecimal(cart.total, 0, 'COMMA', 0, 'POINT')}">0</span>đ
+                        </h4>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Form thanh toán -->
+            <div class="col-lg-7">
+                <form th:action="@{/cart/checkout}" method="post" class="glass-card p-4">
+                    <h4 class="fw-bold mb-4">Thông Tin Giao Hàng</h4>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-map-marker-alt"></i> Địa Chỉ Nhận Hàng *
+                        </label>
+                        <textarea class="form-control" name="shippingAddress" rows="3" required 
+                                  placeholder="Số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành phố"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-phone"></i> Số Điện Thoại *
+                        </label>
+                        <input type="tel" class="form-control" name="phoneNumber" required 
+                               placeholder="Nhập số điện thoại liên hệ">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-sticky-note"></i> Ghi Chú
+                        </label>
+                        <textarea class="form-control" name="note" rows="2" 
+                                  placeholder="Ghi chú thêm về đơn hàng (tùy chọn)"></textarea>
+                    </div>
+                    
+                    <hr/>
+                    
+                    <h4 class="fw-bold mb-3">Phương Thức Thanh Toán</h4>
+                    
+                    <div class="payment-methods">
+                        <div class="payment-option mb-3">
+                            <input type="radio" class="btn-check" name="paymentMethod" id="bankTransfer" 
+                                   value="BANK_TRANSFER" checked>
+                            <label class="btn btn-outline-primary w-100 text-start p-3" for="bankTransfer">
+                                <i class="fas fa-university fa-2x float-start me-3"></i>
+                                <div>
+                                    <strong class="d-block">Chuyển Khoản Ngân Hàng</strong>
+                                    <small class="text-muted">Quét mã QR hoặc chuyển khoản thủ công</small>
+                                </div>
+                            </label>
+                        </div>
+                        
+                        <div class="payment-option">
+                            <input type="radio" class="btn-check" name="paymentMethod" id="cod" value="COD">
+                            <label class="btn btn-outline-primary w-100 text-start p-3" for="cod">
+                                <i class="fas fa-hand-holding-usd fa-2x float-start me-3"></i>
+                                <div>
+                                    <strong class="d-block">Thanh Toán Khi Nhận Hàng (COD)</strong>
+                                    <small class="text-muted">Thanh toán tiền mặt khi nhận hàng</small>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-check-circle"></i> Xác Nhận Đặt Hàng
+                        </button>
+                        <a href="/cart" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Quay Lại Giỏ Hàng
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <style>
+        .payment-option label {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .payment-option input:checked + label {
+            background: var(--primary-gradient) !important;
+            color: white !important;
+            border-color: transparent !important;
+        }
+        
+        .payment-option input:checked + label small {
+            color: rgba(255,255,255,0.9) !important;
+        }
+    </style>
+</div>
+</body>
+</html>

@@ -10,75 +10,112 @@
 <body>
 <div layout:fragment="content">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h4><i class="fas fa-plus"></i> Thêm Sách Mới</h4>
+        <div class="col-lg-8">
+            <div class="glass-card animate-in">
+                <div class="mb-4">
+                    <h2 class="text-gradient mb-2">
+                        <i class="fas fa-plus-circle"></i> Thêm Sách Mới
+                    </h2>
+                    <p class="text-muted">Điền thông tin chi tiết về cuốn sách bạn muốn thêm vào kho.</p>
                 </div>
-                <div class="card-body">
-                    <form th:action="@{/books/add}" method="post" th:object="${book}">
-                        <div class="mb-3">
-                            <label for="title" class="form-label">Tên Sách *</label>
+
+                <form th:action="@{/books/add}" method="post" th:object="${book}">
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="title" class="form-label">
+                                <i class="fas fa-book"></i> Tên Sách *
+                            </label>
                             <input type="text" class="form-control" id="title" th:field="*{title}"
+                                   placeholder="Nhập tên sách..."
                                    th:classappend="${#fields.hasErrors('title')} ? 'is-invalid'">
                             <div class="invalid-feedback" th:if="${#fields.hasErrors('title')}" 
                                  th:errors="*{title}">Error</div>
                         </div>
-                        
-                        <div class="mb-3">
-                            <label for="author" class="form-label">Tác Giả *</label>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="author" class="form-label">
+                                <i class="fas fa-user-edit"></i> Tác Giả *
+                            </label>
                             <input type="text" class="form-control" id="author" th:field="*{author}"
+                                   placeholder="Nhập tên tác giả..."
                                    th:classappend="${#fields.hasErrors('author')} ? 'is-invalid'">
                             <div class="invalid-feedback" th:if="${#fields.hasErrors('author')}" 
                                  th:errors="*{author}">Error</div>
                         </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="price" class="form-label">Giá (VNĐ) *</label>
-                                <input type="number" step="0.01" class="form-control" id="price" th:field="*{price}"
-                                       th:classappend="${#fields.hasErrors('price')} ? 'is-invalid'">
-                                <div class="invalid-feedback" th:if="${#fields.hasErrors('price')}" 
-                                     th:errors="*{price}">Error</div>
-                            </div>
-                            
-                            <div class="col-md-6 mb-3">
-                                <label for="quantity" class="form-label">Số Lượng *</label>
-                                <input type="number" class="form-control" id="quantity" th:field="*{quantity}"
-                                       th:classappend="${#fields.hasErrors('quantity')} ? 'is-invalid'">
-                                <div class="invalid-feedback" th:if="${#fields.hasErrors('quantity')}" 
-                                     th:errors="*{quantity}">Error</div>
-                            </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="category" class="form-label">
+                                <i class="fas fa-tags"></i> Thể Loại *
+                            </label>
+                            <select class="form-select" id="category" th:field="*{category}" required>
+                                <option value="">-- Chọn thể loại --</option>
+                                <th:block th:each="cat : ${categories}">
+                                    <optgroup th:if="${cat.parent == null and !cat.children.isEmpty()}" th:label="${cat.name}">
+                                        <option th:each="child : ${cat.children}" 
+                                                th:value="${child.id}" 
+                                                th:text="${child.name}">
+                                            Category
+                                        </option>
+                                    </optgroup>
+                                </th:block>
+                            </select>
                         </div>
-                        
-                        <div class="mb-3">
-                            <label for="category" class="form-label">Thể Loại *</label>
-                            <input type="text" class="form-control" id="category" th:field="*{category}"
-                                   th:classappend="${#fields.hasErrors('category')} ? 'is-invalid'">
-                            <div class="invalid-feedback" th:if="${#fields.hasErrors('category')}" 
-                                 th:errors="*{category}">Error</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="price" class="form-label">
+                                <i class="fas fa-dollar-sign"></i> Giá (VNĐ) *
+                            </label>
+                            <input type="number" step="1000" class="form-control" id="price" th:field="*{price}"
+                                   placeholder="150000"
+                                   th:classappend="${#fields.hasErrors('price')} ? 'is-invalid'">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('price')}" 
+                                 th:errors="*{price}">Error</div>
                         </div>
-                        
-                        <div class="mb-3">
-                            <label for="imageUrl" class="form-label">URL Hình Ảnh</label>
-                            <input type="url" class="form-control" id="imageUrl" th:field="*{imageUrl}">
+
+                        <div class="col-md-6 mb-3">
+                            <label for="quantity" class="form-label">
+                                <i class="fas fa-boxes"></i> Số Lượng *
+                            </label>
+                            <input type="number" class="form-control" id="quantity" th:field="*{quantity}"
+                                   placeholder="100"
+                                   th:classappend="${#fields.hasErrors('quantity')} ? 'is-invalid'">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('quantity')}" 
+                                 th:errors="*{quantity}">Error</div>
                         </div>
-                        
-                        <div class="mb-3">
-                            <label for="description" class="form-label">Mô Tả</label>
-                            <textarea class="form-control" id="description" rows="4" th:field="*{description}"></textarea>
-                        </div>
-                        
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Lưu Sách
-                            </button>
-                            <a href="/books" class="btn btn-secondary">
-                                <i class="fas fa-times"></i> Hủy
-                            </a>
-                        </div>
-                    </form>
-                </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="imageUrl" class="form-label">
+                            <i class="fas fa-image"></i> URL Hình Ảnh
+                        </label>
+                        <input type="url" class="form-control" id="imageUrl" th:field="*{imageUrl}"
+                               placeholder="https://example.com/image.jpg">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle"></i> Link ảnh bìa sách (để trống nếu không có)
+                        </small>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="description" class="form-label">
+                            <i class="fas fa-align-left"></i> Mô Tả
+                        </label>
+                        <textarea class="form-control" id="description" rows="5" th:field="*{description}"
+                                  placeholder="Mô tả chi tiết về nội dung, tác giả, và những điểm đặc biệt của cuốn sách..."></textarea>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save"></i> Lưu Sách
+                        </button>
+                        <a href="/books" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-times"></i> Hủy
+                        </a>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

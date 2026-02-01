@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import nhom5.phamminhtan.model.Book;
 import nhom5.phamminhtan.model.Cart;
 import nhom5.phamminhtan.service.BookService;
+import nhom5.phamminhtan.service.CategoryService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,25 +19,48 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class BookController {
     
     private final BookService bookService;
+    private final CategoryService categoryService;
     private final Cart cart;
     
     @GetMapping
-    public String listBooks(@RequestParam(required = false) String keyword, Model model) {
+    public String listBooks(@RequestParam(required = false) String keyword,
+                           @RequestParam(required = false) Long categoryId,
+                           Model model) {
         if (keyword != null && !keyword.trim().isEmpty()) {
             model.addAttribute("books", bookService.searchBooks(keyword));
             model.addAttribute("keyword", keyword);
+        } else if (categoryId != null) {
+            model.addAttribute("books", bookService.getBooksByCategory(categoryId));
+            model.addAttribute("selectedCategoryId", categoryId);
         } else {
             model.addAttribute("books", bookService.getAllBooks());
         }
         model.addAttribute("cart", cart);
+        model.addAttribute("categories", categoryService.getAllParentCategoriesWithChildren());
         model.addAttribute("noGlobalAlerts", true);
         return "books/list";
+    }
+    
+    @GetMapping("/detail/{id}")
+    public String viewBookDetail(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+        Book book = bookService.getBookById(id)
+            .orElse(null);
+        
+        if (book == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy sách!");
+            return "redirect:/books";
+        }
+        
+        model.addAttribute("book", book);
+        model.addAttribute("cart", cart);
+        return "books/detail";
     }
     
     @GetMapping("/add")
     @PreAuthorize("hasRole('ADMIN')")
     public String showAddForm(Model model) {
         model.addAttribute("book", new Book());
+        model.addAttribute("categories", categoryService.getAllCategories());
         return "books/add";
     }
     
@@ -44,8 +68,10 @@ public class BookController {
     @PreAuthorize("hasRole('ADMIN')")
     public String addBook(@Valid @ModelAttribute("book") Book book,
                          BindingResult result,
+                         Model model,
                          RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
+            model.addAttribute("categories", categoryService.getAllCategories());
             return "books/add";
         }
         
@@ -66,6 +92,7 @@ public class BookController {
         }
         
         model.addAttribute("book", book);
+        model.addAttribute("categories", categoryService.getAllCategories());
         return "books/edit";
     }
     

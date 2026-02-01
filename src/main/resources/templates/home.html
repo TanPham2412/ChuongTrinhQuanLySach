@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Chủ - Nhà Sách Online</title>
+</head>
+<body>
+<div layout:fragment="content">
+    
+    <!-- Hero Banner -->
+    <div class="hero-banner mb-5">
+        <div class="hero-content text-center text-white">
+            <img src="https://cdn-icons-png.flaticon.com/512/2232/2232688.png" alt="Books" class="hero-icon mb-3">
+            <h1 class="display-3 fw-bold mb-3">Chào Mừng Đến Nhà Sách Online</h1>
+            <p class="lead fs-4 mb-4">Khám phá thế giới tri thức qua hàng ngàn đầu sách chất lượng</p>
+            <p class="mb-4">
+                <i class="fas fa-shipping-fast me-2"></i> Miễn phí vận chuyển cho đơn từ 200.000đ
+                <span class="mx-3">|</span>
+                <i class="fas fa-undo me-2"></i> Đổi trả trong 7 ngày
+                <span class="mx-3">|</span>
+                <i class="fas fa-headset me-2"></i> Hỗ trợ 24/7
+            </p>
+            <a href="/books" class="btn btn-light btn-lg shadow-sm">
+                <i class="fas fa-book-open"></i> Khám Phá Ngay
+            </a>
+        </div>
+    </div>
+
+    <!-- Categories Section -->
+    <div class="categories-section mb-5">
+        <h2 class="text-center fw-bold mb-4">
+            <i class="fas fa-th-large"></i> Thể Loại Sách
+        </h2>
+        <div class="row g-3">
+            <div class="col-md-3 col-6">
+                <a href="/books?keyword=Programming" class="category-card text-decoration-none">
+                    <div class="card border-0 shadow-sm h-100 text-center p-4">
+                        <i class="fas fa-laptop-code fa-3x text-primary mb-3"></i>
+                        <h5 class="fw-bold">Lập Trình</h5>
+                        <p class="text-muted small">Công nghệ & IT</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3 col-6">
+                <a href="/books?keyword=Fiction" class="category-card text-decoration-none">
+                    <div class="card border-0 shadow-sm h-100 text-center p-4">
+                        <i class="fas fa-book fa-3x text-success mb-3"></i>
+                        <h5 class="fw-bold">Văn Học</h5>
+                        <p class="text-muted small">Tiểu thuyết & Truyện</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3 col-6">
+                <a href="/books?keyword=Self-help" class="category-card text-decoration-none">
+                    <div class="card border-0 shadow-sm h-100 text-center p-4">
+                        <i class="fas fa-lightbulb fa-3x text-warning mb-3"></i>
+                        <h5 class="fw-bold">Kỹ Năng</h5>
+                        <p class="text-muted small">Phát triển bản thân</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3 col-6">
+                <a href="/books?keyword=Business" class="category-card text-decoration-none">
+                    <div class="card border-0 shadow-sm h-100 text-center p-4">
+                        <i class="fas fa-briefcase fa-3x text-danger mb-3"></i>
+                        <h5 class="fw-bold">Kinh Doanh</h5>
+                        <p class="text-muted small">Quản trị & Khởi nghiệp</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Featured Books Section -->
+    <div class="featured-books mb-5">
+        <h2 class="text-center fw-bold mb-4">
+            <i class="fas fa-star"></i> Sách Nổi Bật
+        </h2>
+        <div class="row g-4" th:if="${!featuredBooks.empty}">
+            <div class="col-md-4 col-sm-6" th:each="book : ${featuredBooks}">
+                <div class="card border-0 shadow-sm h-100 featured-book-card">
+                    <div class="position-relative">
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                             style="height: 250px;">
+                            <img th:if="${book.imageUrl}" th:src="${book.imageUrl}" alt="Book cover" 
+                                 class="img-fluid rounded" style="max-height: 230px;">
+                            <i th:unless="${book.imageUrl}" class="fas fa-book fa-5x text-primary"></i>
+                        </div>
+                        <span class="badge bg-danger position-absolute top-0 end-0 m-2" th:if="${book.quantity > 0}">
+                            <i class="fas fa-fire"></i> Hot
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold text-truncate" th:text="${book.title}">Book Title</h5>
+                        <p class="text-muted mb-2">
+                            <i class="fas fa-user"></i> <span th:text="${book.author}">Author</span>
+                        </p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-success fw-bold fs-5">
+                                <span th:text="${#numbers.formatDecimal(book.price, 0, 'COMMA', 0, 'POINT')}">Price</span>đ
+                            </span>
+                            <a th:href="@{/books/detail/{id}(id=${book.id})}" class="btn btn-sm btn-primary" th:classappend="${book.quantity <= 0} ? 'disabled' : ''">
+                                <i class="fas fa-info-circle"></i> Xem Chi Tiết
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <a href="/books" class="btn btn-outline-primary btn-lg">
+                <i class="fas fa-arrow-right"></i> Xem Tất Cả Sách
+            </a>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="features-section py-5 bg-light rounded">
+        <div class="row text-center g-4">
+            <div class="col-md-3 col-sm-6">
+                <div class="feature-item">
+                    <i class="fas fa-shipping-fast fa-3x text-primary mb-3"></i>
+                    <h5 class="fw-bold">Giao Hàng Nhanh</h5>
+                    <p class="text-muted">Miễn phí vận chuyển cho đơn từ 200k</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="feature-item">
+                    <i class="fas fa-shield-alt fa-3x text-success mb-3"></i>
+                    <h5 class="fw-bold">Thanh Toán An Toàn</h5>
+                    <p class="text-muted">Bảo mật thông tin 100%</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="feature-item">
+                    <i class="fas fa-undo fa-3x text-warning mb-3"></i>
+                    <h5 class="fw-bold">Đổi Trả Dễ Dàng</h5>
+                    <p class="text-muted">Trong vòng 7 ngày</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="feature-item">
+                    <i class="fas fa-headset fa-3x text-danger mb-3"></i>
+                    <h5 class="fw-bold">Hỗ Trợ 24/7</h5>
+                    <p class="text-muted">Luôn sẵn sàng hỗ trợ bạn</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
