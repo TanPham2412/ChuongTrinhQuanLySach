@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thanh Toán</title>
+    <title>Thanh Toán - Nhà Sách Online</title>
 </head>
 <body>
 <div layout:fragment="content">
@@ -28,7 +28,7 @@
                                 <span class="text-muted"> x <span th:text="${item.quantity}">1</span></span>
                             </div>
                             <div class="fw-bold">
-                                <span th:text="${#numbers.formatDecimal(item.totalPrice, 0, 'COMMA', 0, 'POINT')}">0</span>đ
+                                <span th:text="${#numbers.formatDecimal(item.book.price * item.quantity, 0, 'COMMA', 0, 'POINT')}">0</span>đ
                             </div>
                         </div>
                     </div>

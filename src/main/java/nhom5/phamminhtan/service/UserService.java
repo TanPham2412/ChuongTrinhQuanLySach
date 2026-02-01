@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -28,6 +29,10 @@ public class UserService {
     
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+    
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
     }
     
     public boolean existsByUsername(String username) {
@@ -64,7 +69,20 @@ public class UserService {
         return userRepository.save(user);
     }
     
-    public java.util.List<User> findAll() {
+    @Transactional
+    public User updateUser(User user) {
+        return userRepository.save(user);
+    }
+    
+    @Transactional
+    public void deleteUser(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new RuntimeException("Không tìm thấy người dùng với ID: " + id);
+        }
+        userRepository.deleteById(id);
+    }
+    
+    public List<User> findAll() {
         return userRepository.findAll();
     }
 }

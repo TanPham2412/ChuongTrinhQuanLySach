@@ -899,3 +899,40 @@ footer p {
 .rounded-custom {
     border-radius: var(--border-radius);
 }
+
+/* ===== HOVER EFFECTS ===== */
+.hover-lift {
+    transition: all 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* ===== GRADIENT BACKGROUNDS ===== */
+.bg-primary-gradient {
+    background: var(--primary-gradient) !important;
+}
+
+.bg-secondary-gradient {
+    background: var(--secondary-gradient) !important;
+}
+
+.bg-success-gradient {
+    background: var(--success-gradient) !important;
+}
+
+.bg-gold-gradient {
+    background: var(--gold-gradient) !important;
+}
+
+.stat-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}

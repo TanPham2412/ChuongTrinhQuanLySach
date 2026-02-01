@@ -69,6 +69,7 @@ public class Order {
     public enum OrderStatus {
         PENDING,        // Chờ xác nhận
         CONFIRMED,      // Đã xác nhận
+        PREPARING,      // Đang chuẩn bị
         SHIPPING,       // Đang giao hàng
         COMPLETED,      // Hoàn thành
         CANCELLED       // Đã hủy

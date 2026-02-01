@@ -1,22 +1,26 @@
 package nhom5.phamminhtan.controller;
 
-import lombok.RequiredArgsConstructor;
-import nhom5.phamminhtan.model.Book;
-import nhom5.phamminhtan.model.Cart;
-import nhom5.phamminhtan.model.Order;
-import nhom5.phamminhtan.model.OrderItem;
-import nhom5.phamminhtan.model.User;
-import nhom5.phamminhtan.service.BookService;
-import nhom5.phamminhtan.service.OrderService;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
+import lombok.RequiredArgsConstructor;
+import nhom5.phamminhtan.model.Cart;
+import nhom5.phamminhtan.model.Order;
+import nhom5.phamminhtan.model.OrderItem;
+import nhom5.phamminhtan.model.User;
+import nhom5.phamminhtan.service.OrderService;
+import nhom5.phamminhtan.service.UserService;
 
 @Controller
 @RequestMapping("/cart")
@@ -24,8 +28,8 @@ import java.util.ArrayList;
 public class CartController {
     
     private final Cart cart;
-    private final BookService bookService;
     private final OrderService orderService;
+    private final UserService userService;
     
     @GetMapping
     public String viewCart(Model model) {
@@ -76,8 +80,13 @@ public class CartController {
             return "redirect:/cart";
         }
         
+        // Lấy thông tin user đã đăng nhập
+        User user = userService.findByUsername(userDetails.getUsername())
+            .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng!"));
+        
         // Tạo order
         Order order = new Order();
+        order.setUser(user);  // Set user vào order
         order.setOrderDate(LocalDateTime.now());
         order.setTotalAmount(cart.getTotal());
         order.setStatus(Order.OrderStatus.PENDING);

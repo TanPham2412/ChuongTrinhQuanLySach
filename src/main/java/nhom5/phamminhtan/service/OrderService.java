@@ -1,15 +1,17 @@
 package nhom5.phamminhtan.service;
 
-import lombok.RequiredArgsConstructor;
-import nhom5.phamminhtan.model.Order;
-import nhom5.phamminhtan.repository.OrderRepository;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
+import nhom5.phamminhtan.model.Order;
+import nhom5.phamminhtan.repository.OrderRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +42,19 @@ public class OrderService {
     
     @Transactional
     public Order createOrder(Order order) {
+        return orderRepository.save(order);
+    }
+    
+    public Optional<Order> findById(Long id) {
+        return orderRepository.findByIdWithDetails(id);
+    }
+    
+    @Transactional
+    public Order updateOrderStatus(Long orderId, String statusStr) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
+        Order.OrderStatus status = Order.OrderStatus.valueOf(statusStr);
+        order.setStatus(status);
         return orderRepository.save(order);
     }
     

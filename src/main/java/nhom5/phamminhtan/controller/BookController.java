@@ -1,17 +1,24 @@
 package nhom5.phamminhtan.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import nhom5.phamminhtan.model.Book;
 import nhom5.phamminhtan.model.Cart;
 import nhom5.phamminhtan.service.BookService;
 import nhom5.phamminhtan.service.CategoryService;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/books")
@@ -41,7 +48,7 @@ public class BookController {
         return "books/list";
     }
     
-    @GetMapping("/detail/{id}")
+    @GetMapping({"/{id}", "/detail/{id}"})
     public String viewBookDetail(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         Book book = bookService.getBookById(id)
             .orElse(null);
@@ -116,17 +123,19 @@ public class BookController {
         return "redirect:/books";
     }
     
-    @GetMapping("/delete/{id}")
+    @PostMapping("/delete/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public String deleteBook(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
             bookService.deleteBook(id);
             redirectAttributes.addFlashAttribute("successMessage", "Xóa sách thành công!");
-        } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Không thể xóa sách này vì đã có trong đơn hàng!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
         }
         
-        return "redirect:/books";
+        return "redirect:/admin/books";
     }
     
     @PostMapping("/cart/add/{id}")

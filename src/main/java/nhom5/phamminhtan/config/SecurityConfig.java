@@ -1,7 +1,5 @@
 package nhom5.phamminhtan.config;
 
-import lombok.RequiredArgsConstructor;
-import nhom5.phamminhtan.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,6 +12,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import lombok.RequiredArgsConstructor;
+import nhom5.phamminhtan.service.CustomOAuth2UserService;
+import nhom5.phamminhtan.service.CustomUserDetailsService;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -21,6 +23,8 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
     
     private final CustomUserDetailsService userDetailsService;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2AuthenticationFailureHandler oAuth2FailureHandler;
     
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -62,7 +66,11 @@ public class SecurityConfig {
             )
             .oauth2Login(oauth2 -> oauth2
                 .loginPage("/login")
+                .userInfoEndpoint(userInfo -> userInfo
+                    .userService(customOAuth2UserService)
+                )
                 .defaultSuccessUrl("/books", true)
+                .failureHandler(oAuth2FailureHandler)
             );
         
         return http.build();
