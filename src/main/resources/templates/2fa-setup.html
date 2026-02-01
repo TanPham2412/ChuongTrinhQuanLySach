@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thiết Lập Xác Thực 2 Lớp - Nhà Sách Online</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-success text-white text-center">
+                        <h4 class="mb-0"><i class="fas fa-shield-alt"></i> Thiết Lập Xác Thực 2 Lớp</h4>
+                    </div>
+                    <div class="card-body">
+                        <!-- Step 1: Install App -->
+                        <div class="alert alert-info mb-4">
+                            <h6 class="alert-heading"><i class="fas fa-mobile-alt"></i> Bước 1: Cài Đặt Ứng Dụng</h6>
+                            <p class="mb-0 small">
+                                Tải và cài đặt ứng dụng Google Authenticator từ:
+                            </p>
+                            <ul class="small mb-0 mt-2">
+                                <li><i class="fab fa-google-play"></i> Google Play Store (Android)</li>
+                                <li><i class="fab fa-app-store"></i> App Store (iOS)</li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Step 2: Scan QR Code -->
+                        <div class="mb-4">
+                            <h6 class="fw-bold"><i class="fas fa-qrcode"></i> Bước 2: Quét Mã QR</h6>
+                            <p class="small text-muted">
+                                Mở Google Authenticator và quét mã QR dưới đây:
+                            </p>
+                            <div class="text-center p-3 bg-light rounded">
+                                <img th:src="'data:image/png;base64,' + ${qrCodeImage}" 
+                                     alt="QR Code"
+                                     class="img-fluid"
+                                     style="max-width: 250px;">
+                            </div>
+                        </div>
+                        
+                        <!-- Step 3: Manual Entry (Optional) -->
+                        <div class="mb-4">
+                            <button class="btn btn-sm btn-outline-secondary" 
+                                    type="button" 
+                                    data-bs-toggle="collapse" 
+                                    data-bs-target="#manualEntry">
+                                <i class="fas fa-keyboard"></i> Hoặc nhập thủ công
+                            </button>
+                            <div class="collapse mt-2" id="manualEntry">
+                                <div class="alert alert-secondary small">
+                                    <strong>Mã bí mật:</strong>
+                                    <div class="mt-2">
+                                        <code th:text="${secret}" class="user-select-all">SECRET_KEY</code>
+                                    </div>
+                                    <small class="text-muted d-block mt-2">
+                                        Nhập mã này vào Google Authenticator nếu không thể quét QR code
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 4: Verify Code -->
+                        <div class="mb-4">
+                            <h6 class="fw-bold"><i class="fas fa-check-circle"></i> Bước 3: Xác Nhận Mã</h6>
+                            <p class="small text-muted">
+                                Nhập mã 6 chữ số từ Google Authenticator để hoàn tất:
+                            </p>
+                            
+                            <form th:action="@{/profile/2fa/enable}" 
+                                  th:object="${twoFactorRequest}" 
+                                  method="post">
+                                <div class="mb-3">
+                                    <label for="code" class="form-label">Mã Xác Thực</label>
+                                    <input type="number" 
+                                           class="form-control form-control-lg text-center" 
+                                           id="code"
+                                           th:field="*{code}"
+                                           required
+                                           placeholder="000000"
+                                           maxlength="6"
+                                           pattern="[0-9]{6}">
+                                    <small class="form-text text-muted">
+                                        Mã có 6 chữ số và thay đổi mỗi 30 giây
+                                    </small>
+                                </div>
+                                
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-success btn-lg">
+                                        <i class="fas fa-check"></i> Bật Xác Thực 2 Lớp
+                                    </button>
+                                    <a href="/profile" class="btn btn-outline-secondary">
+                                        <i class="fas fa-arrow-left"></i> Quay Lại
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <!-- Important Note -->
+                        <div class="alert alert-warning mb-0">
+                            <h6 class="alert-heading">
+                                <i class="fas fa-exclamation-triangle"></i> Lưu Ý Quan Trọng
+                            </h6>
+                            <ul class="small mb-0">
+                                <li>Lưu mã bí mật ở nơi an toàn</li>
+                                <li>Sau khi bật, bạn sẽ cần mã xác thực mỗi lần đăng nhập</li>
+                                <li>Nếu mất điện thoại, liên hệ quản trị viên để hỗ trợ</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div layout:fragment="scripts">
+    <script>
+        // Auto-focus on code input
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('code').focus();
+        });
+        
+        // Limit input to 6 digits
+        document.getElementById('code').addEventListener('input', function(e) {
+            if (this.value.length > 6) {
+                this.value = this.value.slice(0, 6);
+            }
+        });
+    </script>
+</div>
+</body>
+</html>

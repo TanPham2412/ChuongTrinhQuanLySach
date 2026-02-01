@@ -62,4 +62,10 @@ public class User {
     private AuthProvider provider;
     
     private String providerId;
+    
+    @Column(name = "two_factor_enabled", nullable = true)
+    private Boolean twoFactorEnabled = false;
+    
+    @Column(name = "two_factor_secret", nullable = true)
+    private String twoFactorSecret;
 }

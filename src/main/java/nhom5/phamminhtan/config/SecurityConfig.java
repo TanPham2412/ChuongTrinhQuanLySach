@@ -25,6 +25,7 @@ public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2AuthenticationFailureHandler oAuth2FailureHandler;
+    private final TwoFactorAuthenticationSuccessHandler twoFactorSuccessHandler;
     
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -48,14 +49,14 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/books", "/books/search", "/register", "/login", "/css/**", "/js/**", "/images/**").permitAll()
+                .requestMatchers("/", "/books", "/books/search", "/register", "/login", "/2fa/verify", "/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers("/books/add", "/books/edit/**", "/books/delete/**").hasRole("ADMIN")
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
                 .loginPage("/login")
-                .defaultSuccessUrl("/books", true)
+                .successHandler(twoFactorSuccessHandler)
                 .failureUrl("/login?error=true")
                 .permitAll()
             )
@@ -69,7 +70,7 @@ public class SecurityConfig {
                 .userInfoEndpoint(userInfo -> userInfo
                     .userService(customOAuth2UserService)
                 )
-                .defaultSuccessUrl("/books", true)
+                .successHandler(twoFactorSuccessHandler)
                 .failureHandler(oAuth2FailureHandler)
             );
         

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác Thực 2 Lớp - Nhà Sách Online</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-5 col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white text-center">
+                        <i class="fas fa-shield-alt fa-3x mb-3 mt-2"></i>
+                        <h4 class="mb-2">Xác Thực 2 Lớp</h4>
+                        <p class="mb-2 small">Vui lòng nhập mã từ Google Authenticator</p>
+                    </div>
+                    <div class="card-body p-4">
+                        <form th:action="@{/2fa/verify}" 
+                              th:object="${twoFactorRequest}" 
+                              method="post">
+                            
+                            <div class="text-center mb-4">
+                                <i class="fas fa-mobile-alt fa-4x text-success"></i>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="code" class="form-label fw-bold">
+                                    <i class="fas fa-key"></i> Mã Xác Thực
+                                </label>
+                                <input type="number" 
+                                       class="form-control form-control-lg text-center" 
+                                       id="code"
+                                       th:field="*{code}"
+                                       required
+                                       placeholder="000000"
+                                       maxlength="6"
+                                       pattern="[0-9]{6}"
+                                       autofocus>
+                                <small class="form-text text-muted">
+                                    <i class="fas fa-info-circle"></i> 
+                                    Mở ứng dụng Google Authenticator và nhập mã 6 chữ số
+                                </small>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-check-circle"></i> Xác Nhận
+                                </button>
+                                <a href="/logout" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times"></i> Hủy Đăng Nhập
+                                </a>
+                            </div>
+                        </form>
+                        
+                        <hr class="my-4">
+                        
+                        <div class="alert alert-info mb-0">
+                            <h6 class="alert-heading">
+                                <i class="fas fa-question-circle"></i> Gặp Vấn Đề?
+                            </h6>
+                            <p class="small mb-0">
+                                Nếu bạn không thể truy cập Google Authenticator, vui lòng liên hệ 
+                                <a href="mailto:support@nhasach.com">hỗ trợ</a> để được giúp đỡ.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Security Tips -->
+                <div class="card shadow-sm mt-3">
+                    <div class="card-body">
+                        <h6 class="card-title">
+                            <i class="fas fa-lightbulb text-warning"></i> Mẹo Bảo Mật
+                        </h6>
+                        <ul class="small mb-0 text-muted">
+                            <li>Mã xác thực thay đổi mỗi 30 giây</li>
+                            <li>Không chia sẻ mã này với bất kỳ ai</li>
+                            <li>Đảm bảo thời gian trên điện thoại được đồng bộ</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div layout:fragment="scripts">
+    <script>
+        // Auto-focus on code input
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeInput = document.getElementById('code');
+            if (codeInput) {
+                codeInput.focus();
+            }
+        });
+        
+        // Limit input to 6 digits
+        const codeInput = document.getElementById('code');
+        if (codeInput) {
+            codeInput.addEventListener('input', function(e) {
+                if (this.value.length > 6) {
+                    this.value = this.value.slice(0, 6);
+                }
+            });
+        }
+    </script>
+</div>
+</body>
+</html>
