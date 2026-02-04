@@ -1,13 +1,14 @@
 package nhom5.phamminhtan.service;
 
-import lombok.RequiredArgsConstructor;
-import nhom5.phamminhtan.model.Category;
-import nhom5.phamminhtan.repository.CategoryRepository;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+import nhom5.phamminhtan.model.Category;
+import nhom5.phamminhtan.repository.CategoryRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +37,18 @@ public class CategoryService {
     }
     
     public Category getCategoryByName(String name) {
-        return categoryRepository.findByName(name);
+        if (name == null) return null;
+        
+        // Try exact match first
+        Category category = categoryRepository.findByName(name);
+        if (category != null) return category;
+        
+        // Try with trimmed name
+        category = categoryRepository.findByNameTrimmed(name);
+        if (category != null) return category;
+        
+        // Try trimmed input
+        return categoryRepository.findByNameTrimmed(name.trim());
     }
     
     @Transactional
